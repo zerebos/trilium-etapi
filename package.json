@@ -4,17 +4,22 @@
   "description": "An easy to use api for Trilium ETAPI.",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
-  "files": ["lib/"],
+  "files": [
+    "lib/"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "tsc -p tsconfig.json --outDir dist/ test.ts",
-    "debug": "npx @digitak/esrun test.ts"
+    "debug": "npx @digitak/esrun test.ts",
+    "docs": "typedoc --entryPointStrategy expand --plugin typedoc-plugin-rename-defaults"
   },
   "author": "Zerebos",
   "license": "Apache-2.0",
   "devDependencies": {
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
+    "typedoc": "^0.24.8",
+    "typedoc-plugin-rename-defaults": "^0.6.5",
     "typescript": "^5.1.6"
   },
   "dependencies": {

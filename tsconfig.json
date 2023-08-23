@@ -11,5 +11,22 @@
         "outDir": "lib",
         "module": "CommonJS",
     },
-    "include": ["src/*"]
+    "include": ["src/*"],
+    "typedocOptions": {
+        "name": "TriliumETAPI",
+        "entryPoints": ["src/index.ts"],
+        "out": "docs",
+        "includeVersion": true,
+        "navigationLinks": {
+            "Trilium": "https://github.com/zadam/trilium"
+        },
+        "sidebarLinks": {
+            "Example": "http://example.com"
+        },
+        "navigation": {
+            "fullTree": true,
+            "includeCategories": true,
+            "includeGroups": false
+        }
+    }
 }

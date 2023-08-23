@@ -22,10 +22,21 @@ export interface AppInfo {
     utcDateTime: string;
 }
 
-export interface APIError {
+export interface IAPIError {
     status: integer;
     code: string;
     message: string;
+}
+
+export class APIError extends Error implements IAPIError {
+    status: integer;
+    code: string;
+    constructor({status, code, message}: IAPIError) {
+        super(message);
+        this.name = "APIError";
+        this.status = status;
+        this.code = code;
+    }
 }
 
 
@@ -70,7 +81,7 @@ export interface Note {
     utcDateModified: UtcDateTime;
 }
 
-export interface CreateNoteDef {
+export interface CreateNoteBase {
     parentNoteId: EntityId;
     title: string;
     type: CreateableNoteType;
@@ -83,10 +94,16 @@ export interface CreateNoteDef {
     branchId?: EntityId;
 }
 
-export interface CreateTypedNoteDef extends CreateNoteDef {
+export interface CreateNormalNoteOptions extends CreateNoteBase {
+    type: "text" | "search" | "book" | "relationMap" | "render";
+}
+
+export interface CreateTypedNoteOptions extends CreateNoteBase {
     type: "code" | "file" | "image";
     mime: string;
 }
+
+export type CreateNoteOptions = CreateTypedNoteOptions | CreateNormalNoteOptions;
 
 
 export interface Branch {

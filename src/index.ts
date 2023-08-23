@@ -4,26 +4,36 @@ import {AppInfo, CreateNoteOptions, EntityId, Note, APIError, SearchResponse, Se
 
 const config: ConfigOptions = {
     url: "http://localhost:37840/etapi",
-    auth: ""
+    token: ""
 };
 
+// Used for defaults for special notes
 const today = new Date();
+
+/**
+ * Why wait for the server to freak out about an Entity ID
+ * when we can do that locally?
+ */
 const idRegex = /[a-zA-Z0-9_]{4,32}/;
 const isValidId = (id: EntityId) => idRegex.test(id);
 const invalidError = (noteId: string) => new APIError({status: 400, code: "INVALID_ENTITY_ID", message: `Entity id "${noteId}" is invalid.`});
 
+// Generic Make Options
 function mopts<T extends ParseType = "json">(path: string, method: HttpMethod, opts: object = {}, parse: string = "json") {
-    return Object.assign({url: `${config.url}${path}`, method, parse: parse, headers: {Authorization: config.auth}}, opts) as (T extends "string" ? phin.IStringResponseOptions : T extends "json" ? phin.IJSONResponseOptions : phin.IOptions);
+    return Object.assign({url: `${config.url}${path}`, method, parse: parse, headers: {Authorization: config.token}}, opts) as (T extends "string" ? phin.IStringResponseOptions : T extends "json" ? phin.IJSONResponseOptions : phin.IOptions);
 }
 
+// Wrapper for json options
 function jopts(path: string, method: HttpMethod, opts: object = {}) {
     return mopts<"json">(path, method, opts, "json");
 }
 
+// Wrapper for string options
 function sopts(path: string, method: HttpMethod, opts: object = {}) {
     return mopts<"string">(path, method, opts, "string");
 }
 
+// Wrapper for binary options
 function bopts(path: string, method: HttpMethod, opts: object = {}) {
     return mopts<"none">(path, method, opts, "none");
 }
@@ -39,12 +49,13 @@ export default class TriliumETAPI {
     private constructor(){};
     /**
      * Sets the token for the package to use.
+     * 
      * @category Config
      * @param token ETAPI token from Trilium.
      * @returns Self for chained actions.
      */
-    static auth(token: string) {
-        config.auth = token;
+    static token(token: string) {
+        config.token = token;
         return this;
     }
 
@@ -52,6 +63,7 @@ export default class TriliumETAPI {
      * This sets the server to be used for future requests.
      * 
      * By default, `http://localhost:37840/etapi` is used.
+     * 
      * @category Config
      * @param fquri The fully qualified URI to notes.
      * @returns Self for chained actions.
@@ -93,6 +105,7 @@ export default class TriliumETAPI {
 
     /**
      * Create a note and place it into the note tree.
+     * 
      * @category Notes
      * @param opts 
      * @returns Information about the new note.
@@ -107,6 +120,7 @@ export default class TriliumETAPI {
      * Search notes according to Trilium's search query system.
      * 
      * See a description on the Trilium Wiki. {@link https://github.com/zadam/trilium/wiki/Search}
+     * 
      * @category Notes
      * @param query Search query to be sent.
      * @returns A set of results and potential debug info.
@@ -119,6 +133,7 @@ export default class TriliumETAPI {
 
     /**
      * Get a Note object by note id.
+     * 
      * @category Notes
      * @param noteId 
      * @returns 
@@ -132,6 +147,7 @@ export default class TriliumETAPI {
 
     /**
      * Patches a note by note id using a partial note object.
+     * 
      * @category Notes
      * @param noteId 
      * @param note Parts of the note to update.
@@ -148,6 +164,7 @@ export default class TriliumETAPI {
      * Deletes a note given a note id.
      * 
      * Note: Use with caution.
+     * 
      * @category Notes
      * @param noteId
      */
@@ -161,6 +178,7 @@ export default class TriliumETAPI {
     /**
      * Gets the content of a note in raw string form.
      * This can include stringified HTML.
+     * 
      * @category Notes
      * @param noteId 
      * @returns Content of the note.
@@ -178,6 +196,7 @@ export default class TriliumETAPI {
      * Note: This DOES NOT append, it completely overwrites the content.
      * If you want to append, first get the note content and concatenate
      * manually.
+     * 
      * @category Notes
      * @param noteId 
      * @param content 
@@ -195,6 +214,7 @@ export default class TriliumETAPI {
      * 
      * This routine returns the raw buffer that should be saved to disk
      * in order to create the `.zip` file.
+     * 
      * @category Notes
      * @param noteId 
      * @param format HTML or Markdown
@@ -221,7 +241,7 @@ export default class TriliumETAPI {
      */
     static async importZip(noteId: EntityId, zip: Buffer) {
         if (!isValidId(noteId)) throw invalidError(noteId);
-        const response = await this.post(`/notes/${noteId}/import`, zip, {headers: {"Authorization": config.auth, "Content-Type": "application/octet-stream", "Content-Transfer-Encoding": "binary"}});
+        const response = await this.post(`/notes/${noteId}/import`, zip, {headers: {"Authorization": config.token, "Content-Type": "application/octet-stream", "Content-Transfer-Encoding": "binary"}});
         if (response.statusCode === 201) return response.body as NoteWithBranch;
         throw new APIError(response.body as IAPIError);
     }
@@ -231,6 +251,8 @@ export default class TriliumETAPI {
      * then be reverted to at any time inside Trilium.
      * 
      * Useful for saving a copy before trying something new.
+     * 
+     * @category Other
      * @param noteId 
      */
     static async createRevision(noteId: EntityId) {
@@ -275,6 +297,7 @@ export default class TriliumETAPI {
      * Note: Only prefix and notePosition can be updated. If you want to
      * update other properties, you need to delete the old branch and
      * create a new one.
+     * 
      * @category Branches
      * @param branchId 
      * @param branch Partial branch object.
@@ -292,6 +315,7 @@ export default class TriliumETAPI {
      * 
      * Note: Use with caution! If this is the last branch of the
      * (child) note, then the note is deleted as well.
+     * 
      * @category Branches
      * @param branchId 
      * @returns 
@@ -305,6 +329,7 @@ export default class TriliumETAPI {
 
     /**
      * Gets an Attribute by id.
+     * 
      * @category Attributes
      * @param attributeId 
      * @returns Attribute object if found.
@@ -326,6 +351,7 @@ export default class TriliumETAPI {
      * 
      * If you want to modify other properties, you need to delete the old
      * attribute and create a new one.
+     * 
      * @category Attributes
      * @param attributeId 
      * @param attribute 
@@ -342,6 +368,7 @@ export default class TriliumETAPI {
      * Deletes an Attribute by id.
      * 
      * Note: Use with caution!
+     * 
      * @category Attributes
      * @param attributeId 
      * @returns 
@@ -359,6 +386,7 @@ export default class TriliumETAPI {
      * Date will be used depending on whether the inbox is a fixed
      * note (identified with an `#inbox` label) or a day note in a
      * journal.
+     * 
      * @category Special Notes
      * @param year 
      * @param month 
@@ -374,6 +402,7 @@ export default class TriliumETAPI {
     /**
      * Gets the daily note for the given date. Note is created
      * if it doesn't already exist.
+     * 
      * @category Special Notes
      * @param year 
      * @param month 
@@ -389,6 +418,7 @@ export default class TriliumETAPI {
     /**
      * Gets the weekly note for the given date. Note is created
      * if it doesn't already exist.
+     * 
      * @category Special Notes
      * @param year 
      * @param month 
@@ -404,6 +434,7 @@ export default class TriliumETAPI {
     /**
      * Gets the monthly note for the given date. Note is created
      * if it doesn't already exist.
+     * 
      * @category Special Notes
      * @param year 
      * @param month 
@@ -418,6 +449,7 @@ export default class TriliumETAPI {
     /**
      * Gets the yearly note for the given year. Note is created
      * if it doesn't already exist.
+     * 
      * @category Special Notes
      * @param year 
      * @returns 
@@ -432,7 +464,8 @@ export default class TriliumETAPI {
      * Logs in to Trilium Notes using your password and generates a new ETAPI Token.
      * 
      * Note: This method will automatically cache the token for later use, so no need
-     * to call auth().
+     * to call `token()`.
+     * 
      * @category Auth
      * @param password Your Trilium password
      * @returns An object containing the new ETAPI Token
@@ -441,7 +474,7 @@ export default class TriliumETAPI {
         const response = await this.post<LoginOptions, LoginResponse>(`/auth/login`, {password}, {headers: {}});
         if (response.statusCode === 201) {
             const resp = response.body as LoginResponse;
-            config.auth = resp.authToken;
+            config.token = resp.authToken;
             return resp;
         }
         if (response.statusCode === 429) throw new APIError({status: 429, code: "BLACKLISTED", message: "Client IP has been blacklisted because too many requests (possibly failed authentications) were made within a short time frame, try again later"});
@@ -450,12 +483,16 @@ export default class TriliumETAPI {
 
     /**
      * Logout deletes the ETAPI Token currently in use.
+     * 
+     * Note: This method will automatically clear the currently cached token as
+     * if you called `token("")`.
+     * 
      * @category Auth
      */
     static async logout() {
         const response = await this.post(`/auth/logout`, null);
         if (response.statusCode === 204) {
-            config.auth = "";
+            config.token = "";
             return;
         }
         throw new APIError(response.body as IAPIError);
@@ -464,6 +501,7 @@ export default class TriliumETAPI {
     /**
      * Gets import info about the currently connected instance
      * of Trilium.
+     * 
      * @category Other
      * @returns Information about this installation of Trilium.
      */
@@ -475,6 +513,7 @@ export default class TriliumETAPI {
 
     /**
      * Creates a backup in the Trilium data directory.
+     * 
      * @category Other
      * @param name Name of backup (will be prefixed by `backup-`)
      * @returns Error upon error, nothing otherwise.

@@ -1,4 +1,4 @@
-# Trilium ETAPI
+# Trilium ETAPI (TEPI)
 
 A Node.js wrapper around the ETAPI for [Trilium Notes](https://github.com/zadam/trilium).
 
@@ -11,8 +11,10 @@ npm install trilium-etapi
 ## Usage
 
 ```js
+// tepi = Trilium Etapi Programming Interface
 import tepi from "trilium-etapi";
 
+tepi.server("https://my.trilium.com:8080/etapi").token(process.env.TRILIUM_TOKEN);
 tepi.getNoteById("root").then(console.log).catch(console.error);
 ```
 

@@ -7,7 +7,7 @@ export type ParseType = "json" | "string" | "none";
 export type ExportType = "markdown" | "html";
 export interface ConfigOptions {
     url: string;
-    auth: string;
+    token: string;
 }
 
 
@@ -15,11 +15,11 @@ export interface AppInfo {
     appVersion: string;
     dbVersion: integer;
     syncVersion: integer;
-    buildDate: string;
+    buildDate: LocalDateTime;
     buildRevision: string;
     dataDirectory: string;
     clipperProtocolVersion: string;
-    utcDateTime: string;
+    utcDateTime: UtcDateTime;
 }
 
 export interface IAPIError {
@@ -98,6 +98,7 @@ export interface CreateNormalNoteOptions extends CreateNoteBase {
     type: "text" | "search" | "book" | "relationMap" | "render";
 }
 
+// These note types require a mime type to be set
 export interface CreateTypedNoteOptions extends CreateNoteBase {
     type: "code" | "file" | "image";
     mime: string;

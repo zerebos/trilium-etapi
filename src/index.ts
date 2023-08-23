@@ -1,6 +1,6 @@
-import qs from "querystring";
+import qs from "node:querystring";
 import phin, {IJSONResponse, IResponse, IStringResponse} from "phin";
-import {AppInfo, CreateNoteOptions, EntityId, Note, APIError, SearchResponse, SearchOptions, Branch, Attribute, LoginOptions, LoginResponse, ConfigOptions, HttpMethod, ParseType, ExportType, NoteWithBranch, IAPIError} from "./types";
+import {AppInfo, CreateNoteOptions, EntityId, Note, APIError, SearchResponse, SearchOptions, Branch, Attribute, LoginOptions, LoginResponse, ConfigOptions, HttpMethod, ParseType, ExportType, NoteWithBranch, IAPIError} from "./types.js";
 
 const config: ConfigOptions = {
     url: "http://localhost:37840/etapi",
@@ -537,4 +537,4 @@ export default class TriliumETAPI {
     }
 }
 
-export * from "./types";
+export * from "./types.js";

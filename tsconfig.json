@@ -9,7 +9,7 @@
         "strictNullChecks": true,
         "target": "ES2020",
         "rootDir": "src",
-        "outDir": "lib",
+        "outDir": "lib/cjs",
         "module": "CommonJS",
     },
     "include": ["src/*"],

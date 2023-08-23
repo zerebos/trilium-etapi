@@ -10,9 +10,19 @@ npm install trilium-etapi
 
 ## Usage
 
+### ESM (Preferred)
 ```js
 // tepi = Trilium Etapi Programming Interface
 import tepi from "trilium-etapi";
+
+tepi.server("https://my.trilium.com:8080/etapi").token(process.env.TRILIUM_TOKEN);
+tepi.getNoteById("root").then(console.log).catch(console.error);
+```
+
+### CommonJS
+```js
+// tepi = Trilium Etapi Programming Interface
+const tepi = require("trilium-etapi").default;
 
 tepi.server("https://my.trilium.com:8080/etapi").token(process.env.TRILIUM_TOKEN);
 tepi.getNoteById("root").then(console.log).catch(console.error);

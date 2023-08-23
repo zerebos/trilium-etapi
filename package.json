@@ -2,13 +2,23 @@
   "name": "trilium-etapi",
   "version": "0.1.0",
   "description": "An easy to use api for Trilium ETAPI.",
-  "main": "./lib/index.js",
-  "types": "./lib/index.d.ts",
+  "exports": {
+    ".": {
+      "require": {
+        "types": "./lib/cjs/index.d.ts", 
+        "default": "./lib/cjs/index.js"
+      },
+      "import": {
+        "types": "./lib/esm/index.d.ts", 
+        "default": "./lib/esm/index.js"
+      }
+    }
+  },
   "files": [
     "lib/"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "rm -rf lib && tsc -p tsconfig.json && tsc -p tsconfig.esm.json && node scripts/fixbuild.mjs",
     "test": "mocha",
     "debug": "ts-node tests/debug.ts",
     "docs": "typedoc --entryPointStrategy expand --plugin typedoc-plugin-rename-defaults",
@@ -40,5 +50,8 @@
     ],
     "spec": "tests/*.spec.ts",
     "require": "ts-node/register"
+  },
+  "engines": {
+    "node": ">=16"
   }
 }

@@ -1,6 +1,6 @@
 # Trilium ETAPI (TEPI)
 
-A Node.js wrapper around the ETAPI for [Trilium Notes](https://github.com/zadam/trilium).
+A Node.js wrapper around the ETAPI for [Trilium Notes](https://github.com/zadam/trilium). The library will continue to match the *stable* release of Trilium and release updates as needed.
 
 ## Installation
 

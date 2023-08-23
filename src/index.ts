@@ -14,12 +14,12 @@ const today = new Date();
  * Why wait for the server to freak out about an Entity ID
  * when we can do that locally?
  */
-const idRegex = /[a-zA-Z0-9_]{4,32}/;
+const idRegex = /^[a-zA-Z0-9_]{4,32}$/;
 const isValidId = (id: EntityId) => idRegex.test(id);
 const invalidError = (noteId: string) => new APIError({status: 400, code: "INVALID_ENTITY_ID", message: `Entity id "${noteId}" is invalid.`});
 
 // Generic Make Options
-function mopts<T extends ParseType = "json">(path: string, method: HttpMethod, opts: object = {}, parse: string = "json") {
+function mopts<T extends ParseType = "json">(path: string, method: HttpMethod, opts: object = {}, parse = "json") {
     return Object.assign({url: `${config.url}${path}`, method, parse: parse, headers: {Authorization: config.token}}, opts) as (T extends "string" ? phin.IStringResponseOptions : T extends "json" ? phin.IJSONResponseOptions : phin.IOptions);
 }
 
@@ -46,7 +46,7 @@ function bopts(path: string, method: HttpMethod, opts: object = {}) {
  * the potential to throw an {@link APIError}.
  */
 export default class TriliumETAPI {
-    private constructor(){};
+    private constructor() {} // eslint-disable-line no-useless-constructor, @typescript-eslint/no-empty-function
     /**
      * Sets the token for the package to use.
      * 
@@ -73,6 +73,18 @@ export default class TriliumETAPI {
         if (parsed.pathname.endsWith("/")) fquri = fquri.slice(0, fquri.length - 1);
         config.url = fquri;
         return this;
+    }
+
+    /**
+     * Check if an id is valid. Useful before sending
+     * requests.
+     * 
+     * @category Utility
+     * @param id id to check
+     * @returns 
+     */
+    static isValidId(this: void, id: EntityId) {
+        return isValidId(id);
     }
 
     private static async get<R>(path: string): Promise<IJSONResponse<R | IAPIError>> {
@@ -126,7 +138,7 @@ export default class TriliumETAPI {
      * @returns A set of results and potential debug info.
      */
     static async searchNotes(query: SearchOptions) {
-        const response =  await this.get<SearchResponse>(`/notes?${qs.stringify(query)}`);
+        const response = await this.get<SearchResponse>(`/notes?${qs.stringify(query as Record<keyof typeof query, string | boolean | number>)}`);
         if (response.statusCode === 201) return response.body as SearchResponse;
         throw new APIError(response.body as IAPIError);
     }
@@ -186,7 +198,7 @@ export default class TriliumETAPI {
     static async getNoteContentById(noteId: EntityId) {
         if (!isValidId(noteId)) throw invalidError(noteId);
         const response = await this.gets(`/notes/${noteId}/content`);
-        if (response.statusCode === 200) return response.body as string;
+        if (response.statusCode === 200) return response.body;
         throw new APIError(JSON.parse(response.body.toString()) as IAPIError);
     }
 
@@ -519,7 +531,7 @@ export default class TriliumETAPI {
      * @returns Error upon error, nothing otherwise.
      */
     static async createBackup(name: string) {
-        const response = await this.put(`/backup/${name}`, null);
+        const response = await this.put(`/backup/${name}`, "");
         if (response.statusCode === 204) return;
         throw new APIError(JSON.parse(response.body.toString()) as IAPIError);
     }

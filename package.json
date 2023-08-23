@@ -9,15 +9,23 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "tsc -p tsconfig.json --outDir dist/ test.ts",
-    "debug": "npx @digitak/esrun test.ts",
-    "docs": "typedoc --entryPointStrategy expand --plugin typedoc-plugin-rename-defaults"
+    "test": "mocha",
+    "debug": "ts-node tests/debug.ts",
+    "docs": "typedoc --entryPointStrategy expand --plugin typedoc-plugin-rename-defaults",
+    "lint": "eslint src tests"
   },
   "author": "Zerebos",
   "license": "Apache-2.0",
   "devDependencies": {
+    "@types/chai": "^4.3.5",
+    "@types/mocha": "^10.0.1",
+    "@typescript-eslint/eslint-plugin": "^6.4.1",
+    "@typescript-eslint/parser": "^6.4.1",
     "chai": "^4.3.7",
+    "eslint": "^8.47.0",
     "mocha": "^10.2.0",
+    "nock": "^13.3.3",
+    "ts-node": "^10.9.1",
     "typedoc": "^0.24.8",
     "typedoc-plugin-rename-defaults": "^0.6.5",
     "typescript": "^5.1.6"
@@ -25,5 +33,12 @@
   "dependencies": {
     "@types/node": "^20.5.1",
     "phin": "^3.7.0"
+  },
+  "mocha": {
+    "extension": [
+      "ts"
+    ],
+    "spec": "tests/*.spec.ts",
+    "require": "ts-node/register"
   }
 }

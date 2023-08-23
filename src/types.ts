@@ -69,7 +69,7 @@ export interface Note {
     type: NoteType;
     mime: string;
     readonly isProtected: boolean;
-    blobId: EntityId;
+    blobId?: EntityId;
     attributes: AttributeList;
     parentNoteIds: EntityIdList;
     childNoteIds: EntityIdList;
@@ -124,7 +124,7 @@ export interface NoteWithBranch {
 }
 
 
-export type SearchOptions = {
+export interface SearchOptions {
     search: string;
     fastSearch?: boolean;
     includeArchivedNotes?: boolean;

@@ -6,6 +6,7 @@
         "allowSyntheticDefaultImports": true,
         "resolveJsonModule": true,
         "declaration": true,
+        "strictNullChecks": true,
         "target": "ES2020",
         "rootDir": "src",
         "outDir": "lib",
@@ -20,9 +21,7 @@
         "navigationLinks": {
             "Trilium": "https://github.com/zadam/trilium"
         },
-        "sidebarLinks": {
-            "Example": "http://example.com"
-        },
+        "sidebarLinks": {},
         "navigation": {
             "fullTree": true,
             "includeCategories": true,

@@ -83,7 +83,7 @@ export default class TriliumETAPI {
      * @param id id to check
      * @returns 
      */
-    static isValidId(this: void, id: EntityId) {
+    static isValidId(id: EntityId) {
         return isValidId(id);
     }
 

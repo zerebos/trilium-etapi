@@ -9,7 +9,7 @@ import tepi, {APIError} from "../src";
 nock.disableNetConnect();
 
 const s = (length: number) => Array(length).fill("t").join("");
-const isValidId = tepi.isValidId;
+const isValidId = (id: string) => tepi.isValidId(id);
 
 describe("Id Validation", () => {
     it("should return false for length < 4", () => {

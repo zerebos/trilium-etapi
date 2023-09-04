@@ -103,8 +103,8 @@ export default class TriliumETAPI {
         return await phin<R>(jopts(path, "post", Object.assign({}, {data}, opts)));
     }
 
-    private static async put(path: string, data: string): Promise<IResponse> {
-        return await phin(bopts(path, "put", {data}));
+    private static async put<T>(path: string, data: T, opts = {}): Promise<IResponse> {
+        return await phin(bopts(path, "put", Object.assign({}, {data}, opts)));
     }
 
     private static async patch<R>(path: string, data: Partial<R>): Promise<IJSONResponse<R | IAPIError>> {
@@ -213,9 +213,16 @@ export default class TriliumETAPI {
      * @param noteId 
      * @param content 
      */
-    static async putNoteContentById(noteId: EntityId, content: string) {
+    static async putNoteContentById(noteId: EntityId, content: string | Buffer) {
         if (!isValidId(noteId)) throw invalidError(noteId);
-        const response = await this.put(`/notes/${noteId}/content`, content);
+        const opts = {
+            headers: {
+                "Authorization": config.token,
+                "Content-Type": typeof(content) === "string" ? "text/plain" : "application/octet-stream",
+                "Content-Transfer-Encoding": typeof(content) === "string" ? null : "binary"
+            }
+        };
+        const response = await this.put(`/notes/${noteId}/content`, content, opts);
         if (response.statusCode === 204) return;
         throw new APIError(JSON.parse(response.body.toString()) as IAPIError);
     }

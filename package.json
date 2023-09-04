@@ -1,6 +1,6 @@
 {
   "name": "trilium-etapi",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An easy to use api for Trilium ETAPI.",
   "homepage": "https://github.com/rauenzi/trilium-etapi",
   "repository": {

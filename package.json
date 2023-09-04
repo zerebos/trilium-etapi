@@ -2,6 +2,12 @@
   "name": "trilium-etapi",
   "version": "0.1.0",
   "description": "An easy to use api for Trilium ETAPI.",
+  "homepage": "https://github.com/rauenzi/trilium-etapi",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rauenzi/trilium-etapi.git"
+  },
+  "keywords": ["trilium", "notes", "api", "etapi", "rest"],
   "exports": {
     ".": {
       "require": {

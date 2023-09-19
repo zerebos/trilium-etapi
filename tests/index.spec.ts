@@ -54,7 +54,7 @@ describe("Config functions", () => {
 
 
 describe("Note functions", () => {
-    const scope = nock("http://localhost:37840/etapi").get(/\/notes\/[a-zA-Z0-9_]{4,32}/).reply((uri) => {
+    const scope = nock("http://127.0.0.1:37840/etapi").get(/\/notes\/[a-zA-Z0-9_]{4,32}/).reply((uri) => {
         const id = uri.replace("/etapi/notes/", "");
         if (!isValidId(id)) return [400, {status: 400, code: "INVALID_ENTITY_ID", message: `Entity id "${id}" is invalid.`}];
         if (id === "root") return [200, rootNote];

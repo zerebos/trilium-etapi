@@ -3,7 +3,7 @@ import phin, {IJSONResponse, IResponse, IStringResponse} from "phin";
 import {AppInfo, CreateNoteOptions, EntityId, Note, APIError, SearchResponse, SearchOptions, Branch, Attribute, LoginOptions, LoginResponse, ConfigOptions, HttpMethod, ParseType, ExportType, NoteWithBranch, IAPIError} from "./types.js";
 
 const config: ConfigOptions = {
-    url: "http://localhost:37840/etapi",
+    url: "http://127.0.0.1:37840/etapi",
     token: ""
 };
 

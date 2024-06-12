@@ -139,7 +139,7 @@ export default class TriliumETAPI {
      */
     static async searchNotes(query: SearchOptions) {
         const response = await this.get<SearchResponse>(`/notes?${qs.stringify(query as Record<keyof typeof query, string | boolean | number>)}`);
-        if (response.statusCode === 201) return response.body as SearchResponse;
+        if (response.statusCode === 200) return response.body as SearchResponse;
         throw new APIError(response.body as IAPIError);
     }
 

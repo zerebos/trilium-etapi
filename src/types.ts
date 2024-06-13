@@ -10,6 +10,8 @@ export interface ConfigOptions {
     token: string;
 }
 
+type AtLeast<T, K extends keyof T> = Partial<T> & Pick<T, K>
+
 
 export interface AppInfo {
     appVersion: string;
@@ -58,6 +60,7 @@ export interface Attribute {
 }
 
 export type AttributeList = Attribute[];
+export type CreateAttributeOptions = AtLeast<Attribute, "noteId" | "type" | "name" | "value">
 
 
 export type CreateableNoteType = "text" | "code" | "file" | "image" | "search" | "book" | "relationMap" | "render";

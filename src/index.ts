@@ -1,6 +1,6 @@
 import qs from "node:querystring";
 import phin, {IJSONResponse, IResponse, IStringResponse} from "phin";
-import {AppInfo, CreateNoteOptions, EntityId, Note, Attachment, APIError, SearchResponse, SearchOptions, Branch, Attribute, LoginOptions, LoginResponse, ConfigOptions, HttpMethod, ParseType, ExportType, NoteWithBranch, IAPIError, CreateAttachmentOptions} from "./types.js";
+import {AppInfo, CreateNoteOptions, EntityId, Note, Attachment, APIError, SearchResponse, SearchOptions, Branch, Attribute, LoginOptions, LoginResponse, ConfigOptions, HttpMethod, ParseType, ExportType, NoteWithBranch, IAPIError, CreateAttachmentOptions, CreateAttributeOptions} from "./types.js";
 
 const config: ConfigOptions = {
     url: "http://127.0.0.1:37840/etapi",
@@ -282,6 +282,25 @@ export default class TriliumETAPI {
     }
 
     /**
+     * Refreshes the current note ordering for all clients based on notePosition.
+     * 
+     * notePositions in branches are not automatically pushed to connected clients
+     * and need a specific instruction. If you want your changes to be in effect
+     * immediately, call this service after setting branches' notePosition.
+     * 
+     * Note that you need to supply "parentNoteId" of branch(es) with changed positions.
+     * 
+     * @category Other
+     * @param parentNoteId 
+     */
+    static async refreshNoteOrdering(parentNoteId: EntityId) {
+        if (!isValidId(parentNoteId)) throw invalidError(parentNoteId);
+        const response = await this.post(`/refresh-note-ordering/${parentNoteId}`, null);
+        if (response.statusCode === 204) return;
+        throw new APIError(response.body as IAPIError);
+    }
+
+    /**
      * Create a branch (clone a note to a different location in the tree).
      * 
      * In case there is a branch between parent note and child note already, 
@@ -291,9 +310,9 @@ export default class TriliumETAPI {
      * @param branch Branch to clone note
      */
     static async postBranch(branch: Branch) {
-        const response = await this.post<Branch, APIError>(`/branches`, branch);
-        if (response.statusCode === 200 || response.statusCode === 201) return;
-        throw response.body;
+        const response = await this.post<Branch, Branch>(`/branches`, branch);
+        if (response.statusCode === 200 || response.statusCode === 201) return response.body as Branch;
+        throw new APIError(response.body as IAPIError);
     }
 
     /**
@@ -353,7 +372,7 @@ export default class TriliumETAPI {
      * @param opts 
      * @returns Attachment Object
      */
-    static async createAttachment(opts: CreateAttachmentOptions) {
+    static async postAttachment(opts: CreateAttachmentOptions) {
         const response = await this.post<CreateAttachmentOptions, Attachment>("/attachments", opts);
         if (response.statusCode === 201) return response.body as Attachment;
         throw new APIError(response.body as IAPIError);
@@ -447,6 +466,18 @@ export default class TriliumETAPI {
         const response = await this.put(`/attachments/${attachmentId}/content`, content, opts);
         if (response.statusCode === 204) return;
         throw new APIError(JSON.parse(response.body.toString()) as IAPIError);
+    }
+
+    /**
+     * Create an attribute for a given note.
+     * 
+     * @category Attributes
+     * @param attribute
+     */
+    static async postAttribute(attribute: CreateAttributeOptions) {
+        const response = await this.post<CreateAttributeOptions, Attribute>(`/attributes`, attribute);
+        if (response.statusCode === 201) return response.body as Attribute;
+        throw new APIError(response.body as IAPIError);
     }
 
     /**

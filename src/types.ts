@@ -1,6 +1,15 @@
 export type integer = number;
-export type StringId = string;
+/**
+ * **Pattern:** `[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}[\+\-][0-9]{4}`
+ * 
+ * **Example:** `2021-12-31 20:18:11.930+0100`
+ */
 export type LocalDateTime = string;
+/**
+ * **Pattern:** `[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z`
+ * 
+ * **Example:** `2021-12-31 20:18:11.930Z`
+ */
 export type UtcDateTime = string;
 export type HttpMethod = "get" | "post" | "patch" | "delete" | "put";
 export type ParseType = "json" | "string" | "none";
@@ -10,7 +19,11 @@ export interface ConfigOptions {
     token: string;
 }
 
-type AtLeast<T, K extends keyof T> = Partial<T> & Pick<T, K>
+/**
+ * Creates a normal `Partial<T>` but sets some fields as required.
+ * TODO: find a way to use this 
+ */
+// export type PartialExcept<T, K extends keyof T> = Partial<T> & Pick<T, K>
 
 
 export interface AppInfo {
@@ -41,7 +54,11 @@ export class APIError extends Error implements IAPIError {
     }
 }
 
-
+/**
+ * **Pattern:** `[a-zA-Z0-9_]{4,32}`
+ * 
+ * **Example:** `evnnmvHTCgIn`
+ */
 export type EntityId = string;
 export type EntityIdList = EntityId[];
 
@@ -60,7 +77,25 @@ export interface Attribute {
 }
 
 export type AttributeList = Attribute[];
-export type CreateAttributeOptions = AtLeast<Attribute, "noteId" | "type" | "name" | "value">
+
+// TODO: export type CreateAttributeOptions = PartialExcept<Attribute, "noteId" | "type" | "name" | "value">
+export interface CreateAttributeOptions {
+    attributeId: EntityId;
+    noteId: EntityId;
+    type: AttributeType;
+    name: string;
+    value?: string;
+    position?: integer;
+    isInheritable?: boolean;
+}
+
+// TODO: find a way to separate this for attribute type
+// This would be straightforward if "type" was part of this object
+// Maybe a type guard?
+export interface PatchAttributeOptions {
+    value?: string;
+    position?: integer;
+}
 
 
 export type CreateableNoteType = "text" | "code" | "file" | "image" | "search" | "book" | "relationMap" | "render";
@@ -109,6 +144,14 @@ export interface CreateTypedNoteOptions extends CreateNoteBase {
 
 export type CreateNoteOptions = CreateTypedNoteOptions | CreateNormalNoteOptions;
 
+export interface PatchNoteOptions {
+    title?: string;
+    type?: NoteType;
+    mime?: string;
+    dateCreated?: LocalDateTime;
+    utcDateCreated?: UtcDateTime;
+}
+
 
 export interface Attachment {
     attachmentId: EntityId;
@@ -124,15 +167,22 @@ export interface Attachment {
 }
 
 export interface CreateAttachmentOptions {
-    ownerId: EntityId;
-    role: string;
-    mime: string;
-    title: string;
-    content: string;
-    position: integer;
+    ownerId?: EntityId;
+    role?: string;
+    mime?: string;
+    title?: string;
+    content?: string;
+    position?: integer;
 }
 
+export interface PatchAttachmentOptions {
+    role?: string;
+    mime?: string;
+    title?: string;
+    position?: integer;
+}
 
+// TODO: consider using Omit<Branch, > to avoid duplication for Options types
 export interface Branch {
     branchId: EntityId;
     noteId: EntityId;
@@ -141,6 +191,20 @@ export interface Branch {
     notePosition: integer;
     isExpanded: boolean;
     utcDateModified: UtcDateTime;
+}
+
+export interface CreateBranchOptions {
+    noteId: EntityId;
+    parentNoteId: EntityId;
+    prefix?: string;
+    notePosition?: integer;
+    isExpanded?: boolean;
+}
+
+export interface PatchBranchOptions {
+    notePosition?: integer;
+    prefix?: string;
+    isExpanded?: boolean;
 }
 
 

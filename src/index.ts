@@ -1,6 +1,6 @@
 import qs from "node:querystring";
 import phin, {IJSONResponse, IResponse, IStringResponse} from "phin";
-import {AppInfo, CreateNoteOptions, EntityId, Note, Attachment, APIError, SearchResponse, SearchOptions, Branch, Attribute, LoginOptions, LoginResponse, ConfigOptions, HttpMethod, ParseType, ExportType, NoteWithBranch, IAPIError, CreateAttachmentOptions, CreateAttributeOptions} from "./types.js";
+import {AppInfo, CreateNoteOptions, EntityId, Note, Attachment, APIError, SearchResponse, SearchOptions, Branch, Attribute, LoginOptions, LoginResponse, ConfigOptions, HttpMethod, ParseType, ExportType, NoteWithBranch, IAPIError, CreateAttachmentOptions, CreateAttributeOptions, CreateBranchOptions, PatchBranchOptions, PatchAttributeOptions, PatchNoteOptions, PatchAttachmentOptions} from "./types.js";
 
 const config: ConfigOptions = {
     url: "http://127.0.0.1:37840/etapi",
@@ -165,7 +165,7 @@ export default class TriliumETAPI {
      * @param note Parts of the note to update.
      * @returns The new updated Note object.
      */
-    static async patchNoteById(noteId: EntityId, note: Partial<Note>) {
+    static async patchNoteById(noteId: EntityId, note: PatchNoteOptions) {
         if (!isValidId(noteId)) throw invalidError(noteId);
         const response = await this.patch<Note>(`/notes/${noteId}`, note);
         if (response.statusCode === 200) return response.body as Note;
@@ -309,8 +309,8 @@ export default class TriliumETAPI {
      * @category Branches
      * @param branch Branch to clone note
      */
-    static async postBranch(branch: Branch) {
-        const response = await this.post<Branch, Branch>(`/branches`, branch);
+    static async postBranch(branch: CreateBranchOptions) {
+        const response = await this.post<CreateBranchOptions, Branch>(`/branches`, branch);
         if (response.statusCode === 200 || response.statusCode === 201) return response.body as Branch;
         throw new APIError(response.body as IAPIError);
     }
@@ -341,9 +341,9 @@ export default class TriliumETAPI {
      * @param branch Partial branch object.
      * @returns New Branch object representing the updated one.
      */
-    static async patchBranchById(branchId: EntityId, branch: Partial<Branch>) {
+    static async patchBranchById(branchId: EntityId, branch: PatchBranchOptions) {
         if (!isValidId(branchId)) throw invalidError(branchId);
-        const response = await this.patch<Branch>(`/branches/${branchId}`, branch);
+        const response = await this.patch<PatchBranchOptions>(`/branches/${branchId}`, branch);
         if (response.statusCode === 204) return response.body as Branch;
         throw new APIError(response.body as IAPIError);
     }
@@ -405,7 +405,7 @@ export default class TriliumETAPI {
      * @param attachment 
      * @returns Attachment Object
      */
-    static async patchAttachmentById(attachmentId: EntityId, attachment: Partial<Attachment>) {
+    static async patchAttachmentById(attachmentId: EntityId, attachment: PatchAttachmentOptions) {
         if (!isValidId(attachmentId)) throw invalidError(attachmentId);
         const response = await this.patch<Attachment>(`/attachments/${attachmentId}`, attachment);
         if (response.statusCode === 200) return response.body as Attachment;
@@ -510,7 +510,7 @@ export default class TriliumETAPI {
      * @param attribute 
      * @returns Newly updated Attribute.
      */
-    static async patchAttributeById(attributeId: EntityId, attribute: Partial<Attribute>) {
+    static async patchAttributeById(attributeId: EntityId, attribute: PatchAttributeOptions) {
         if (!isValidId(attributeId)) throw invalidError(attributeId);
         const response = await this.patch<Attribute>(`/attributes/${attributeId}`, attribute);
         if (response.statusCode === 200) return response.body as Attribute;

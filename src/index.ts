@@ -183,7 +183,7 @@ export default class TriliumETAPI {
     static async deleteNoteById(noteId: EntityId) {
         if (!isValidId(noteId)) throw invalidError(noteId);
         const response = await this.delete(`/notes/${noteId}`);
-        if (response.statusCode === 200) return;
+        if (response.statusCode === 204) return;
         throw new APIError(JSON.parse(response.body.toString()) as IAPIError);
     }
 
@@ -428,7 +428,7 @@ export default class TriliumETAPI {
     static async patchBranchById(branchId: EntityId, branch: Partial<Branch>) {
         if (!isValidId(branchId)) throw invalidError(branchId);
         const response = await this.patch<Branch>(`/branches/${branchId}`, branch);
-        if (response.statusCode === 200) return response.body as Branch;
+        if (response.statusCode === 204) return response.body as Branch;
         throw new APIError(response.body as IAPIError);
     }
 
@@ -498,7 +498,7 @@ export default class TriliumETAPI {
     static async deleteAttributeById(attributeId: EntityId) {
         if (!isValidId(attributeId)) throw invalidError(attributeId);
         const response = await this.delete(`/attributes/${attributeId}`);
-        if (response.statusCode === 200) return;
+        if (response.statusCode === 204) return;
         throw new APIError(JSON.parse(response.body.toString()) as IAPIError);
     }
 

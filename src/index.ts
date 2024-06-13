@@ -266,6 +266,87 @@ export default class TriliumETAPI {
     }
 
     /**
+     * Creates a new revision for a given note. This can
+     * then be reverted to at any time inside Trilium.
+     * 
+     * Useful for saving a copy before trying something new.
+     * 
+     * @category Other
+     * @param noteId 
+     */
+    static async createRevision(noteId: EntityId) {
+        if (!isValidId(noteId)) throw invalidError(noteId);
+        const response = await this.post(`/notes/${noteId}/note-revision`, null);
+        if (response.statusCode === 204) return;
+        throw new APIError(response.body as IAPIError);
+    }
+
+    /**
+     * Create a branch (clone a note to a different location in the tree).
+     * 
+     * In case there is a branch between parent note and child note already, 
+     * then this will update the existing branch with prefix, notePosition and isExpanded.
+     * 
+     * @category Branches
+     * @param branch Branch to clone note
+     */
+    static async postBranch(branch: Branch) {
+        const response = await this.post<Branch, APIError>(`/branches`, branch);
+        if (response.statusCode === 200 || response.statusCode === 201) return;
+        throw response.body;
+    }
+
+    /**
+     * Gets a Branch by id.
+     * 
+     * @category Branches
+     * @param branchId 
+     * @returns Matching Branch object.
+     */
+    static async getBranchById(branchId: EntityId) {
+        if (!isValidId(branchId)) throw invalidError(branchId);
+        const response = await this.get<Branch>(`/branches/${branchId}`);
+        if (response.statusCode === 200) return response.body as Branch;
+        throw new APIError(response.body as IAPIError);
+    }
+
+    /**
+     * Patch a branch identified by the branchId with changes in the body.
+     * 
+     * Note: Only prefix and notePosition can be updated. If you want to
+     * update other properties, you need to delete the old branch and
+     * create a new one.
+     * 
+     * @category Branches
+     * @param branchId 
+     * @param branch Partial branch object.
+     * @returns New Branch object representing the updated one.
+     */
+    static async patchBranchById(branchId: EntityId, branch: Partial<Branch>) {
+        if (!isValidId(branchId)) throw invalidError(branchId);
+        const response = await this.patch<Branch>(`/branches/${branchId}`, branch);
+        if (response.statusCode === 204) return response.body as Branch;
+        throw new APIError(response.body as IAPIError);
+    }
+
+    /**
+     * Deletes a branch by id.
+     * 
+     * Note: Use with caution! If this is the last branch of the
+     * (child) note, then the note is deleted as well.
+     * 
+     * @category Branches
+     * @param branchId 
+     * @returns 
+     */
+    static async deleteBranchById(branchId: EntityId) {
+        if (!isValidId(branchId)) throw invalidError(branchId);
+        const response = await this.delete(`/branches/${branchId}`);
+        if (response.statusCode === 200) return;
+        throw new APIError(JSON.parse(response.body.toString()) as IAPIError);
+    }
+
+    /**
      * Creates a new attachment for a specific note/owner.
      * 
      * @category Attachments
@@ -365,87 +446,6 @@ export default class TriliumETAPI {
         };
         const response = await this.put(`/attachments/${attachmentId}/content`, content, opts);
         if (response.statusCode === 204) return;
-        throw new APIError(JSON.parse(response.body.toString()) as IAPIError);
-    }
-
-    /**
-     * Creates a new revision for a given note. This can
-     * then be reverted to at any time inside Trilium.
-     * 
-     * Useful for saving a copy before trying something new.
-     * 
-     * @category Other
-     * @param noteId 
-     */
-    static async createRevision(noteId: EntityId) {
-        if (!isValidId(noteId)) throw invalidError(noteId);
-        const response = await this.post(`/notes/${noteId}/note-revision`, null);
-        if (response.statusCode === 204) return;
-        throw new APIError(response.body as IAPIError);
-    }
-
-    /**
-     * Create a branch (clone a note to a different location in the tree).
-     * 
-     * In case there is a branch between parent note and child note already, 
-     * then this will update the existing branch with prefix, notePosition and isExpanded.
-     * 
-     * @category Branches
-     * @param branch Branch to clone note
-     */
-    static async postBranch(branch: Branch) {
-        const response = await this.post<Branch, APIError>(`/branches`, branch);
-        if (response.statusCode === 200 || response.statusCode === 201) return;
-        throw response.body;
-    }
-
-    /**
-     * Gets a Branch by id.
-     * 
-     * @category Branches
-     * @param branchId 
-     * @returns Matching Branch object.
-     */
-    static async getBranchById(branchId: EntityId) {
-        if (!isValidId(branchId)) throw invalidError(branchId);
-        const response = await this.get<Branch>(`/branches/${branchId}`);
-        if (response.statusCode === 200) return response.body as Branch;
-        throw new APIError(response.body as IAPIError);
-    }
-
-    /**
-     * Patch a branch identified by the branchId with changes in the body.
-     * 
-     * Note: Only prefix and notePosition can be updated. If you want to
-     * update other properties, you need to delete the old branch and
-     * create a new one.
-     * 
-     * @category Branches
-     * @param branchId 
-     * @param branch Partial branch object.
-     * @returns New Branch object representing the updated one.
-     */
-    static async patchBranchById(branchId: EntityId, branch: Partial<Branch>) {
-        if (!isValidId(branchId)) throw invalidError(branchId);
-        const response = await this.patch<Branch>(`/branches/${branchId}`, branch);
-        if (response.statusCode === 204) return response.body as Branch;
-        throw new APIError(response.body as IAPIError);
-    }
-
-    /**
-     * Deletes a branch by id.
-     * 
-     * Note: Use with caution! If this is the last branch of the
-     * (child) note, then the note is deleted as well.
-     * 
-     * @category Branches
-     * @param branchId 
-     * @returns 
-     */
-    static async deleteBranchById(branchId: EntityId) {
-        if (!isValidId(branchId)) throw invalidError(branchId);
-        const response = await this.delete(`/branches/${branchId}`);
-        if (response.statusCode === 200) return;
         throw new APIError(JSON.parse(response.body.toString()) as IAPIError);
     }
 

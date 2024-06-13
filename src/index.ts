@@ -1,6 +1,6 @@
 import qs from "node:querystring";
 import phin, {IJSONResponse, IResponse, IStringResponse} from "phin";
-import {AppInfo, CreateNoteOptions, EntityId, Note, APIError, SearchResponse, SearchOptions, Branch, Attribute, LoginOptions, LoginResponse, ConfigOptions, HttpMethod, ParseType, ExportType, NoteWithBranch, IAPIError} from "./types.js";
+import {AppInfo, CreateNoteOptions, EntityId, Note, Attachment, APIError, SearchResponse, SearchOptions, Branch, Attribute, LoginOptions, LoginResponse, ConfigOptions, HttpMethod, ParseType, ExportType, NoteWithBranch, IAPIError, CreateAttachmentOptions} from "./types.js";
 
 const config: ConfigOptions = {
     url: "http://127.0.0.1:37840/etapi",
@@ -263,6 +263,109 @@ export default class TriliumETAPI {
         const response = await this.post(`/notes/${noteId}/import`, zip, {headers: {"Authorization": config.token, "Content-Type": "application/octet-stream", "Content-Transfer-Encoding": "binary"}});
         if (response.statusCode === 201) return response.body as NoteWithBranch;
         throw new APIError(response.body as IAPIError);
+    }
+
+    /**
+     * Creates a new attachment for a specific note/owner.
+     * 
+     * @category Attachments
+     * @param opts 
+     * @returns Attachment Object
+     */
+    static async createAttachment(opts: CreateAttachmentOptions) {
+        const response = await this.post<CreateAttachmentOptions, Attachment>("/attachments", opts);
+        if (response.statusCode === 201) return response.body as Attachment;
+        throw new APIError(response.body as IAPIError);
+    }
+
+    /**
+     * Gets an attachment by id.
+     * 
+     * @category Attachments
+     * @param attachmentId 
+     * @returns Attachment Object
+     */
+    static async getAttachmentById(attachmentId: EntityId) {
+        if (!isValidId(attachmentId)) throw invalidError(attachmentId);
+        const response = await this.get<Attachment>(`/attachments/${attachmentId}`);
+        if (response.statusCode === 200) return response.body as Attachment;
+        throw new APIError(response.body as IAPIError);
+    }
+
+    /**
+     * Patch an attachment identified by the attachmentId with changes 
+     * to the attachment properties (not content).
+     * 
+     * Note: Only role, mine, title, and position can be updated. If you want to
+     * update other properties, you need to delete the old branch and
+     * create a new one.
+     * 
+     * @category Attachments
+     * @param attachmentId 
+     * @param attachment 
+     * @returns Attachment Object
+     */
+    static async patchAttachmentById(attachmentId: EntityId, attachment: Partial<Attachment>) {
+        if (!isValidId(attachmentId)) throw invalidError(attachmentId);
+        const response = await this.patch<Attachment>(`/attachments/${attachmentId}`, attachment);
+        if (response.statusCode === 200) return response.body as Attachment;
+        throw new APIError(response.body as IAPIError);
+    }
+
+    /**
+     * Deletes an attachment by id.
+     * 
+     * Note: Use with caution! If this is the last branch of the
+     * (child) note, then the note is deleted as well.
+     * 
+     * @category Attachments
+     * @param attachmentId 
+     * @returns 
+     */
+    static async deleteAttachmentById(attachmentId: EntityId) {
+        if (!isValidId(attachmentId)) throw invalidError(attachmentId);
+        const response = await this.delete(`/attachments/${attachmentId}`);
+        if (response.statusCode === 204) return;
+        throw new APIError(JSON.parse(response.body.toString()) as IAPIError);
+    }
+
+    /**
+     * Gets an attachment's content by id.
+     * 
+     * @category Attachments
+     * @param attachmentId 
+     * @returns attachment content
+     */
+    static async getAttachmentContentById(attachmentId: EntityId) {
+        if (!isValidId(attachmentId)) throw invalidError(attachmentId);
+        const response = await this.get<string>(`/attachments/${attachmentId}/content`);
+        if (response.statusCode === 200) return response.body as string;
+        throw new APIError(response.body as IAPIError);
+    }
+
+    /**
+     * Set the attachment content for a given attachment id.
+     * 
+     * Note: This DOES NOT append, it completely overwrites the content.
+     * If you want to append, first get the attachment content and concatenate
+     * manually.
+     * 
+     * @category Attachments
+     * @param attachmentId 
+     * @param content 
+     */
+    static async putAttachmentContentById(attachmentId: EntityId, content: string | Buffer) {
+        if (!isValidId(attachmentId)) throw invalidError(attachmentId);
+        const opts = {
+            headers: {
+                "Authorization": config.token,
+                "Content-Type": typeof(content) === "string" ? "text/plain" : "application/octet-stream",
+                "Content-Transfer-Encoding": typeof(content) === "string" ? null : "binary"
+            }
+        };
+        const response = await this.put(`/attachments/${attachmentId}/content`, content, opts);
+        if (response.statusCode === 204) return;
+        throw new APIError(JSON.parse(response.body.toString()) as IAPIError);
     }
 
     /**

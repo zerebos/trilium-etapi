@@ -107,6 +107,29 @@ export interface CreateTypedNoteOptions extends CreateNoteBase {
 export type CreateNoteOptions = CreateTypedNoteOptions | CreateNormalNoteOptions;
 
 
+export interface Attachment {
+    attachmentId: EntityId;
+    ownerId: EntityId;
+    role: string;
+    mime: string;
+    position: integer;
+    blobId: string;
+    dateModified: LocalDateTime;
+    utcDateModified: UtcDateTime;
+    utcDateScheduledForErasureSince: UtcDateTime;
+    contentLength: integer;
+}
+
+export interface CreateAttachmentOptions {
+    ownerId: EntityId;
+    role: string;
+    mime: string;
+    title: string;
+    content: string;
+    position: integer;
+}
+
+
 export interface Branch {
     branchId: EntityId;
     noteId: EntityId;
